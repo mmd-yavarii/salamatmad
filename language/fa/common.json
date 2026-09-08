@@ -1,0 +1,9 @@
+{
+    "navigation": {
+        "admin": "ادمین",
+        "profile": "پروفایل",
+        "articles": "مقالات",
+        "cart": "سبد خرید",
+        "home": "خانه"
+    }
+}

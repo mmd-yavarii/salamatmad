@@ -1,0 +1,9 @@
+{
+    "navigation": {
+        "admin": "Admin",
+        "profile": "Profile",
+        "articles": "Articles",
+        "cart": "Cart",
+        "home": "Home"
+    }
+}
