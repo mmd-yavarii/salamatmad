@@ -1,0 +1,20 @@
+{
+    "profile": {
+        "menu": {
+            "trackOrder": {
+                "title": "پیگیری سفارش",
+                "description": "مشاهده وضعیت سفارش‌های جاری"
+            },
+
+            "support": {
+                "title": "تماس با پشتیبانی",
+                "description": "ارتباط با تیم پشتیبانی"
+            },
+
+            "recentOrders": {
+                "title": "سفارش‌های اخیر",
+                "description": "مشاهده تاریخچه خریدها"
+            }
+        }
+    }
+}

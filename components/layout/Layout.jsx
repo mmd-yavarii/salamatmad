@@ -1,53 +1,78 @@
 'use client';
 
-import { useTranslation } from 'react-i18next';
-import GlassBottomNav from './GlassBottomNav';
+import { usePathname } from 'next/navigation';
+
 import Header from './Header';
-
-import { LuShield, LuUserRound, LuFileText, LuShoppingCart, LuHouse } from 'react-icons/lu';
-
 import BackgroundEffects from './background';
 
+import { LuShield, LuUserRound, LuFileText, LuShoppingCart, LuHouse, LuCircleHelp, LuHeadset, LuCode } from 'react-icons/lu';
+
 function Layout({ children }) {
-    const { t } = useTranslation();
+    const pathname = usePathname();
+
+    const withoutLayout = ['/auth/login', '/auth/sign-up'];
+
+    const isWithoutLayout = withoutLayout.includes(pathname);
 
     const navItems = [
         {
-            title: t('navigation.admin'),
-            icon: LuShield,
-            activeIcon: LuShield,
-            href: '/admin',
+            title: 'navigation.home',
+            icon: LuHouse,
+            activeIcon: LuHouse,
+            href: '/',
         },
         {
-            title: t('navigation.profile'),
-            icon: LuUserRound,
-            activeIcon: LuUserRound,
-            href: '/profile',
-        },
-        {
-            title: t('navigation.articles'),
-            icon: LuFileText,
-            activeIcon: LuFileText,
-            href: '/articles',
-        },
-        {
-            title: t('navigation.cart'),
+            title: 'navigation.cart',
             icon: LuShoppingCart,
             activeIcon: LuShoppingCart,
             href: '/cart',
             badge: 2,
         },
         {
-            title: t('navigation.home'),
-            icon: LuHouse,
-            activeIcon: LuHouse,
-            href: '/',
+            title: 'navigation.articles',
+            icon: LuFileText,
+            activeIcon: LuFileText,
+            href: '/articles',
+        },
+        {
+            title: 'navigation.profile',
+            icon: LuUserRound,
+            activeIcon: LuUserRound,
+            href: '/profile',
+        },
+        {
+            title: 'navigation.admin',
+            icon: LuShield,
+            activeIcon: LuShield,
+            href: '/admin',
+        },
+        {
+            title: 'navigation.support',
+            icon: LuHeadset,
+            activeIcon: LuHeadset,
+            href: '/support',
+        },
+        {
+            title: 'navigation.about',
+            icon: LuCircleHelp,
+            activeIcon: LuCircleHelp,
+            href: '/about',
+        },
+        {
+            title: 'navigation.developer',
+            icon: LuCode,
+            activeIcon: LuCode,
+            href: 'https://project-consultation.vercel.app/',
         },
     ];
 
     return (
         <div
-            className="relative min-h-screen overflow-hidden"
+            className="
+                relative
+                min-h-screen
+                overflow-hidden
+            "
             style={{
                 backgroundColor: 'var(--background)',
                 color: 'var(--foreground)',
@@ -56,11 +81,9 @@ function Layout({ children }) {
             <BackgroundEffects />
 
             <div className="relative z-10">
-                <Header />
+                {!isWithoutLayout && <Header navItems={navItems} />}
 
-                <main className="safe-bottom">{children}</main>
-
-                <GlassBottomNav navItems={navItems} />
+                <main className="safe-bottom pt-25">{children}</main>
             </div>
         </div>
     );

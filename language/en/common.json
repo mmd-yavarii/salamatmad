@@ -4,6 +4,11 @@
         "profile": "Profile",
         "articles": "Articles",
         "cart": "Cart",
-        "home": "Home"
+        "home": "Home",
+        "about": "About Us",
+        "developer": "About the Developer",
+        "support": "Contact Support",
+        "menu": "Site Menu",
+        "login": "Login / Register"
     }
 }
