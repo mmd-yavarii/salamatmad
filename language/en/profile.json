@@ -14,7 +14,19 @@
             "recentOrders": {
                 "title": "Recent Orders",
                 "description": "View purchase history"
+            },
+
+            "logout": {
+                "title": "Logout",
+                "description": "Sign out from current account"
             }
+        },
+
+        "logoutDialog": {
+            "title": "Logout from account",
+            "message": "Are you sure you want to sign out from your account?",
+            "cancel": "Cancel",
+            "confirm": "Logout"
         }
     }
 }

@@ -4,6 +4,8 @@ export default function Document() {
     return (
         <Html lang="fa">
             <Head>
+                <link rel="icon" href="/logo.png" type="image/png" />
+
                 <script
                     dangerouslySetInnerHTML={{
                         __html: `

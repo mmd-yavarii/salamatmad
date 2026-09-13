@@ -100,7 +100,7 @@ export default function Header({ navItems = [] }) {
 
                     <div className="flex items-center">
                         {isHome ? (
-                            <Image src="/logo.png" alt="logo" width={115} height={35} className="object-contain" priority />
+                            <Image src="/logo.png" alt="logo" width={45} height={45} className="object-contain" priority />
                         ) : (
                             <button
                                 onClick={() => router.back()}
