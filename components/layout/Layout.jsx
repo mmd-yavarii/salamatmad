@@ -83,7 +83,14 @@ function Layout({ children }) {
             <div className="relative z-10">
                 {!isWithoutLayout && <Header navItems={navItems} />}
 
-                <main className="safe-bottom pt-25">{children}</main>
+                <main
+                    className={`
+                        safe-bottom
+                        ${isWithoutLayout ? '' : 'pt-25'}
+                    `}
+                >
+                    {children}
+                </main>
             </div>
         </div>
     );

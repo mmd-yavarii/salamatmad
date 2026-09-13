@@ -87,7 +87,7 @@ export default function Signup() {
     };
 
     return (
-        <main className="flex items-start justify-center p-6 pt-16">
+        <main className="flex items-start justify-center px-6 ">
             <AuthForm
                 mode="signup"
                 values={values}

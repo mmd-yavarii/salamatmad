@@ -31,12 +31,15 @@ export default function AuthForm({
         rounded-2xl
         outline-none
         text-sm
+        text-right
         text-foreground
+        placeholder:text-right
         placeholder:text-foreground/35
         backdrop-blur-xl
         border
         transition-all
         duration-300
+
         ${
             errors[field]
                 ? `
@@ -55,7 +58,7 @@ export default function AuthForm({
                     focus:ring-cyan-400/10
                 `
         }
-    `;
+`;
 
     const iconClass = `
         absolute
@@ -69,7 +72,7 @@ export default function AuthForm({
     `;
 
     return (
-        <div className="w-full max-w-md mx-auto">
+        <div className="w-full max-w-md mx-auto pt-10">
             {/* Header */}
             <div className="text-center mb-7">
                 <h1
@@ -133,7 +136,8 @@ export default function AuthForm({
                 </div>
 
                 {/* Form */}
-                <form onSubmit={onSubmit} className="relative space-y-5" noValidate>
+                {/* <form onSubmit={onSubmit} className="relative space-y-5" noValidate> */}
+                <form onSubmit={onSubmit} className="relative space-y-5" dir="rtl" noValidate>
                     {/* General Error */}
                     {errors.general && (
                         <div
@@ -425,7 +429,6 @@ export default function AuthForm({
                             font-semibold
                             text-white
                             bg-[#ff0073]
-                            hover:bg-cyan-400
                             active:scale-[0.98]
                             disabled:opacity-50
                             disabled:cursor-not-allowed
