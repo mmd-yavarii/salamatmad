@@ -5,7 +5,9 @@ import User from '@/models/User';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(400).json({ name: 'bad request' });
+        return res.status(405).json({
+            message: 'authMessages.methodNotAllowed',
+        });
     }
 
     try {
@@ -13,26 +15,30 @@ export default async function handler(req, res) {
 
         const { name, phone, password } = req.body;
 
-        // verification
         if (!name || !phone || !password) {
             return res.status(400).json({
-                message: 'bad request',
+                message: 'authMessages.required.namePhonePassword',
             });
         }
 
         const normalizedPhone = normalizePhone(phone);
 
         if (!phoneRegex.test(normalizedPhone) || !passwordRegex.test(password)) {
-            return res.status(400).json({ message: 'phone number or password is invalid' });
+            return res.status(400).json({
+                message: 'authMessages.invalid.phonePassword',
+            });
         }
 
-        const userExistence = await User.findOne({ phone: normalizedPhone });
+        const userExistence = await User.findOne({
+            phone: normalizedPhone,
+        });
 
         if (userExistence) {
-            return res.status(400).json({ message: 'user already exists' });
+            return res.status(400).json({
+                message: 'authMessages.signup.userExists',
+            });
         }
 
-        // create
         const hashedPassword = await hashPassword(password);
 
         const user = await User.create({
@@ -41,15 +47,24 @@ export default async function handler(req, res) {
             password: hashedPassword,
         });
 
-        const token = generateToken({ id: user._id, name: user.name, phone: user.phone, role: user.role });
-        // return res.status(201).json({ message: 'user created successfully', data: { token, info: { name, phone } } });
+        const token = generateToken({
+            id: user._id,
+            name: user.name,
+            phone: user.phone,
+            role: user.role,
+        });
+
         return res.status(201).json({
-            message: 'user created successfully',
+            message: 'authMessages.signup.success',
+
             data: {
                 token,
                 info: {
-                    name,
-                    phone,
+                    name: user.name,
+
+                    phone: user.phone,
+
+                    role: user.role,
                 },
             },
         });
@@ -57,7 +72,7 @@ export default async function handler(req, res) {
         console.log(err);
 
         return res.status(500).json({
-            message: 'server error',
+            message: 'authMessages.server.error',
         });
     }
 }

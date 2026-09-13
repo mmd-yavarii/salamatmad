@@ -6,9 +6,11 @@ import Header from './Header';
 import BackgroundEffects from './background';
 
 import { LuShield, LuUserRound, LuFileText, LuShoppingCart, LuHouse, LuCircleHelp, LuHeadset, LuCode } from 'react-icons/lu';
+import { useRouter } from 'next/router';
 
 function Layout({ children }) {
     const pathname = usePathname();
+    const router = useRouter();
 
     const withoutLayout = ['/auth/login', '/auth/sign-up'];
 
@@ -35,18 +37,6 @@ function Layout({ children }) {
             href: '/articles',
         },
         {
-            title: 'navigation.profile',
-            icon: LuUserRound,
-            activeIcon: LuUserRound,
-            href: '/profile',
-        },
-        {
-            title: 'navigation.admin',
-            icon: LuShield,
-            activeIcon: LuShield,
-            href: '/admin',
-        },
-        {
             title: 'navigation.support',
             icon: LuHeadset,
             activeIcon: LuHeadset,
@@ -62,7 +52,7 @@ function Layout({ children }) {
             title: 'navigation.developer',
             icon: LuCode,
             activeIcon: LuCode,
-            href: 'https://project-consultation.vercel.app/',
+            href: `https://project-consultation.vercel.app?url=salamatmad`,
         },
     ];
 

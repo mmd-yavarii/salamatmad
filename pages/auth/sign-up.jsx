@@ -1,44 +1,62 @@
 'use client';
+
 import { useAuth } from '@/context/AuthContext';
 
 import { useState } from 'react';
+
 import { useRouter } from 'next/navigation';
+
+import { useTranslation } from 'react-i18next';
 
 import AuthForm from '@/components/auth/form';
 
 export default function Signup() {
     const router = useRouter();
+
     const auth = useAuth();
+
+    const { t } = useTranslation();
 
     const [values, setValues] = useState({
         name: '',
+
         phone: '',
+
         password: '',
+
         confirmPassword: '',
     });
 
     const [errors, setErrors] = useState({});
+
     const [loading, setLoading] = useState(false);
+
     const [showPassword, setShowPassword] = useState(false);
+
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // input change handler
+    // input change
+
     const handleChange = (event) => {
         const { name, value } = event.target;
 
         setValues((prev) => ({
             ...prev,
+
             [name]: value,
         }));
 
         setErrors((prev) => ({
             ...prev,
+
             [name]: '',
+
             general: '',
         }));
     };
 
-    // signup handler
+    // signup
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -46,8 +64,9 @@ export default function Signup() {
 
         if (values.password !== values.confirmPassword) {
             setErrors({
-                confirmPassword: 'Passwords do not match',
+                confirmPassword: t('authMessages.invalid.passwordMatch'),
             });
+
             return;
         }
 
@@ -56,13 +75,18 @@ export default function Signup() {
 
             const response = await fetch('/api/auth/signup', {
                 method: 'POST',
+
                 headers: {
                     'Content-Type': 'application/json',
                 },
+
                 credentials: 'include',
+
                 body: JSON.stringify({
                     name: values.name,
+
                     phone: values.phone,
+
                     password: values.password,
                 }),
             });
@@ -70,16 +94,21 @@ export default function Signup() {
             const data = await response.json();
 
             if (!response.ok) {
-                setErrors({ general: data.message || 'Something went wrong' });
+                setErrors({
+                    general: t(data.message || 'authMessages.server.error'),
+                });
+
                 return;
             }
 
             auth.setToken(data.data);
+
             router.replace('/profile');
         } catch (error) {
             console.log(error);
+
             setErrors({
-                general: 'Server connection error',
+                general: t('authMessages.server.connectionError'),
             });
         } finally {
             setLoading(false);
@@ -87,7 +116,7 @@ export default function Signup() {
     };
 
     return (
-        <main className="flex items-start justify-center px-6 ">
+        <main className="flex items-start justify-center px-6">
             <AuthForm
                 mode="signup"
                 values={values}

@@ -1,17 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-
 import { useRouter } from 'next/navigation';
-
 import { useAuth } from '@/context/AuthContext';
-
+import { useTranslation } from 'react-i18next';
 import AuthForm from '@/components/auth/form';
 
 export default function Login() {
     const router = useRouter();
-
     const auth = useAuth();
+    const { t } = useTranslation();
 
     const [values, setValues] = useState({
         phone: '',
@@ -20,9 +18,7 @@ export default function Login() {
     });
 
     const [errors, setErrors] = useState({});
-
     const [loading, setLoading] = useState(false);
-
     const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (event) => {
@@ -71,7 +67,7 @@ export default function Login() {
 
             if (!response.ok) {
                 setErrors({
-                    general: data.message || 'Something went wrong',
+                    general: t(data.message) || t('authMessages.server.error'),
                 });
 
                 return;
@@ -83,7 +79,7 @@ export default function Login() {
             console.log(error);
 
             setErrors({
-                general: 'Server connection error',
+                general: t('authMessages.server.error'),
             });
         } finally {
             setLoading(false);

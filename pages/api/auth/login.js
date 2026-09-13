@@ -1,12 +1,17 @@
 import { comparePassword, generateToken, normalizePhone } from '@/helper/auth';
-import { passwordRegex, phoneRegex } from '@/helper/regex';
+
+import { phoneRegex } from '@/helper/regex';
+
 import dbConnect from '@/lib/dbConnect';
+
 import User from '@/models/User';
 
 export default async function handler(req, res) {
+    // check request method
+
     if (req.method !== 'POST') {
         return res.status(405).json({
-            message: 'Method not allowed',
+            message: 'authMessages.methodNotAllowed',
         });
     }
 
@@ -15,63 +20,86 @@ export default async function handler(req, res) {
 
         const { phone, password } = req.body;
 
+        // required validation
+
         if (!phone || !password) {
             return res.status(400).json({
-                message: 'phone and password are required',
+                message: 'authMessages.required.phonePassword',
             });
         }
+
+        // normalize phone number
 
         const normalizedPhone = normalizePhone(phone);
 
-        if (!phoneRegex.test(normalizedPhone) || !passwordRegex.test(password)) {
+        // phone validation
+
+        if (!phoneRegex.test(normalizedPhone)) {
             return res.status(400).json({
-                message: 'phone number or password is invalid',
+                message: 'authMessages.invalid.phonePassword',
             });
         }
+
+        // find user
 
         const user = await User.findOne({
             phone: normalizedPhone,
         });
 
+        // security: don't reveal if user exists
+
         if (!user) {
-            return res.status(400).json({
-                message: 'user does not exist',
+            return res.status(401).json({
+                message: 'authMessages.login.invalidCredentials',
             });
         }
 
-        const verifyPass = await comparePassword(password, user.password);
+        // compare password
 
-        if (!verifyPass) {
-            return res.status(400).json({
-                message: 'phone number or password is invalid',
+        const verifyPassword = await comparePassword(
+            password,
+
+            user.password
+        );
+
+        if (!verifyPassword) {
+            return res.status(401).json({
+                message: 'authMessages.login.invalidCredentials',
             });
         }
+
+        // generate jwt token
 
         const token = generateToken({
             id: user._id,
+
             name: user.name,
+
             phone: user.phone,
+
             role: user.role,
         });
 
         return res.status(200).json({
-            message: 'login successfully',
+            message: 'authMessages.login.success',
 
             data: {
                 token,
 
                 info: {
                     name: user.name,
+
                     phone: user.phone,
+
                     role: user.role,
                 },
             },
         });
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.log(error);
 
         return res.status(500).json({
-            message: 'server error',
+            message: 'authMessages.server.error',
         });
     }
 }

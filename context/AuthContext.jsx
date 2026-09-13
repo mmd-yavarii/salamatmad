@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
         info: {
             name: '',
             phone: '',
+            role: '',
         },
     });
 
@@ -32,6 +33,7 @@ export function AuthProvider({ children }) {
                     info: {
                         name: '',
                         phone: '',
+                        role: '',
                     },
                 });
             }

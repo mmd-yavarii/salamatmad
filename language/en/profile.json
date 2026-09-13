@@ -16,6 +16,11 @@
                 "description": "View purchase history"
             },
 
+            "admin": {
+                "title": "Admin Panel",
+                "description": "Manage products and orders"
+            },
+
             "logout": {
                 "title": "Logout",
                 "description": "Sign out from current account"
