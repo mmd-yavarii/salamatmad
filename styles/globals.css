@@ -169,3 +169,95 @@ body {
 
     filter: blur(64px);
 }
+
+/* ================================
+   Reusable Input
+================================ */
+
+.app-input {
+    width: 100%;
+    height: 3rem;
+
+    padding-right: 2.75rem;
+    padding-left: 3rem;
+
+    border-radius: 1rem;
+    border: 1px solid var(--button-border);
+
+    outline: none;
+
+    background: var(--button-background);
+    backdrop-filter: blur(24px);
+
+    color: var(--foreground);
+
+    font-size: 0.875rem;
+    text-align: right;
+
+    transition:
+        border-color 300ms ease,
+        box-shadow 300ms ease,
+        background-color 300ms ease;
+}
+
+.app-input::placeholder {
+    color: color-mix(in srgb, var(--foreground) 35%, transparent);
+
+    text-align: right;
+}
+
+.app-input:hover {
+    border-color: color-mix(in srgb, var(--them) 30%, transparent);
+}
+
+.app-input:focus {
+    border-color: color-mix(in srgb, var(--them) 70%, transparent);
+
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--them) 10%, transparent);
+}
+
+/* Error */
+
+.app-input-error {
+    border-color: color-mix(in srgb, #ef4444 60%, transparent);
+
+    background: color-mix(in srgb, #ef4444 4%, transparent);
+}
+
+.app-input-error:hover {
+    border-color: color-mix(in srgb, #ef4444 70%, transparent);
+}
+
+.app-input-error:focus {
+    border-color: #f87171;
+
+    box-shadow: 0 0 0 4px color-mix(in srgb, #ef4444 10%, transparent);
+}
+
+/* ================================
+   Input Icon
+================================ */
+
+.app-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.app-input-icon {
+    position: absolute;
+
+    right: 1rem;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    pointer-events: none;
+
+    color: color-mix(in srgb, var(--foreground) 35%, transparent);
+
+    transition: color 300ms ease;
+}
+
+.app-input-wrapper:focus-within .app-input-icon {
+    color: color-mix(in srgb, var(--them) 70%, transparent);
+}

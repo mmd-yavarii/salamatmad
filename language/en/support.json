@@ -1,0 +1,61 @@
+{
+    "support": {
+        "badge": "24/7 Support",
+        "title": "We're Here to Help",
+        "description": "Have a question or need help choosing a product? Send us a message and we'll get back to you as soon as possible.",
+
+        "loginRequired": {
+            "title": "Please log in to send a message",
+            "description": "To help us better track and manage your requests, messaging is available only to logged-in users.",
+            "loginButton": "Log in to your account"
+        },
+
+        "message": {
+            "title": "Send a Direct Message",
+            "description": "Our support team responds within a few hours.",
+            "status": "Online",
+            "placeholder": "Write your message with as much detail as possible...",
+            "loginPlaceholder": "Please log in to your account first",
+            "minimumCharacters": "Write at least 10 characters",
+            "sendButton": "Send Message",
+            "sendingButton": "Sending...",
+            "success": "Your message was sent successfully.",
+            "error": "Failed to send your message. Please try again."
+        },
+
+        "contact": {
+            "title": "Contact Us",
+            "description": "You can contact us directly through any of the options below.",
+
+            "instagram": {
+                "name": "Instagram",
+                "description": "Follow us"
+            },
+
+            "sales": {
+                "name": "Sales Manager",
+                "description": "Contact sales"
+            },
+
+            "guide": {
+                "name": "Support Advisor",
+                "description": "Guidance and consultation"
+            },
+
+            "support": {
+                "name": "Support",
+                "description": "Contact support"
+            },
+
+            "rubika": {
+                "name": "Rubika",
+                "description": "Message us on Rubika"
+            },
+
+            "email": {
+                "name": "Email",
+                "description": "Send us an email"
+            }
+        }
+    }
+}
