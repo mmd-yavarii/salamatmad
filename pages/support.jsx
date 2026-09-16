@@ -7,7 +7,7 @@ import { FiSend, FiInstagram, FiPhone, FiMessageCircle, FiLogIn, FiLock, FiMail,
 
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext';
-import { sendBaleMessage } from '@/helper/sendBaleMessage';
+import { sendBaleTicket } from '@/helper/sendBaleTicket';
 
 function Support() {
     const { t } = useTranslation();
@@ -17,26 +17,54 @@ function Support() {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null);
 
-    const isAuthenticated = auth.isAuthenticated || false;
+    const isAuthenticated = auth?.isAuthenticated || false;
 
-    // Send user message to support Bale bot
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!isAuthenticated || !message.trim() || loading) return;
+        if (!isAuthenticated || !message.trim() || loading) {
+            return;
+        }
 
         setStatus(null);
+        setLoading(true);
 
         try {
-            setLoading(true);
+            const name = auth?.auth?.info?.name || 'نامشخص';
+            const phone = auth?.auth?.info?.phone || 'نامشخص';
+            // const userId = auth?.auth?.info?._id || auth?.auth?.info?.id;
 
-            await sendBaleMessage(message.trim());
+            // if (!userId) {
+            //     throw new Error('User ID is not available');
+            // }
+
+            // const ticketId = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+            const userId = auth?.auth?.info?._id || auth?.auth?.info?.id;
+
+            if (!userId) {
+                throw new Error('User ID is not available');
+            }
+            const chatId = `C-${String(userId).slice(-8).toUpperCase()}`;
+
+            const supportMessage =
+                `🎫 کد پیگیری: #${chatId}\n` +
+                `👤 نام: ${name}\n` +
+                `📱 شماره تلفن: ${phone}\n` +
+                `────────────────\n` +
+                `💬 پیام:\n${message.trim()}`;
+
+            await sendBaleTicket({
+                chatId,
+                userId,
+                message: supportMessage,
+            });
+            await sendBaleTicket(supportMessage);
 
             setMessage('');
             setStatus('success');
         } catch (error) {
-            console.error('Failed to send message:', error);
-
+            console.error('Failed to send support message:', error);
             setStatus('error');
         } finally {
             setLoading(false);
@@ -48,6 +76,7 @@ function Support() {
             key: 'instagram',
             icon: FiInstagram,
             href: 'https://www.instagram.com/salamat.mad.ir',
+            external: true,
         },
         {
             key: 'sales',
@@ -68,6 +97,7 @@ function Support() {
             key: 'rubika',
             icon: FiMessageCircle,
             href: 'https://rubika.ir/Erfanhemati1372',
+            external: true,
         },
         {
             key: 'email',
@@ -141,7 +171,6 @@ function Support() {
                                         }}
                                     >
                                         {t('support.loginRequired.loginButton')}
-
                                         <FiLogIn size={14} />
                                     </Link>
                                 </div>
@@ -193,7 +222,6 @@ function Support() {
                                 onChange={(e) => {
                                     setMessage(e.target.value);
 
-                                    // Remove previous status when user starts typing again
                                     if (status) {
                                         setStatus(null);
                                     }
@@ -234,17 +262,13 @@ function Support() {
 
                             {/* Bottom Controls */}
                             <div className="mt-4 flex min-h-11 items-center justify-between gap-4">
-                                {/* Status / Minimum Characters */}
+                                {/* Status */}
                                 <div className="min-h-5 min-w-0">
                                     {status === 'success' && (
                                         <p className="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400">
                                             <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
                                             {t('support.message.success')}
                                         </p>
-                                    )}
-
-                                    {status === 'error' && (
-                                        <p className="text-xs font-medium text-red-500 dark:text-red-400">{t('support.message.error')}</p>
                                     )}
 
                                     {status === 'error' && (
@@ -332,6 +356,8 @@ function Support() {
                                 <a
                                     key={item.key}
                                     href={item.href}
+                                    target={item.external ? '_blank' : undefined}
+                                    rel={item.external ? 'noopener noreferrer' : undefined}
                                     className="
                                         group
                                         relative

@@ -1,11 +1,13 @@
-export async function sendBaleMessage(message) {
+export async function sendBaleTicket({ chatId, userId, message }) {
     try {
-        const response = await fetch('/api/bale/send-message', {
+        const response = await fetch('/api/bale/send-message?ticket=ok', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                chatId,
+                userId,
                 message,
             }),
         });
@@ -13,7 +15,7 @@ export async function sendBaleMessage(message) {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || 'Failed to send Bale message');
+            console.log(data.message || 'Failed to send Bale message');
         }
 
         return data;
