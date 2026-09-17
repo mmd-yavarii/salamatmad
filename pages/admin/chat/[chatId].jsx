@@ -1,62 +1,110 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FiSend } from 'react-icons/fi';
+import MessageList from '@/components/MessageList';
 
 function Chat() {
     const router = useRouter();
+
     const { chatId } = router.query;
 
     const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    const [messages, setMessages] = useState([
-        {
-            id: 1,
-            sender: 'user',
-            message: 'سلام، برای انتخاب محصول مناسب راهنمایی می‌خواستم.',
-        },
-        {
-            id: 2,
-            sender: 'admin',
-            message: 'سلام، حتماً. خوشحال می‌شم راهنماییتون کنم.',
-        },
-        {
-            id: 3,
-            sender: 'user',
-            message: 'برای استفاده روزانه می‌خوام.',
-        },
-        {
-            id: 4,
-            sender: 'admin',
-            message: 'حتماً. چه بودجه‌ای در نظر گرفتید؟',
-        },
-        {
-            id: 5,
-            sender: 'user',
-            message: 'حدود ۲ میلیون تومان.',
-        },
-    ]);
+    // دریافت پیام‌های چت
+    useEffect(() => {
+        if (!router.isReady || !chatId) return;
 
-    const handleSend = (e) => {
+        const getMessages = async () => {
+            try {
+                setLoading(true);
+                setError('');
+
+                const response = await fetch(`/api/admin/chat/${chatId}`);
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    setError(data.message || 'خطا در دریافت پیام‌ها');
+                    return;
+                }
+
+                setMessages(data.messages || []);
+            } catch (error) {
+                console.error('Get messages error:', error);
+
+                setError('خطا در ارتباط با سرور.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        getMessages();
+    }, [router.isReady, chatId]);
+
+    // ارسال پاسخ
+    const handleSend = async (e) => {
         e.preventDefault();
 
-        if (!message.trim()) return;
+        if (!message.trim() || !chatId) {
+            return;
+        }
 
-        setMessages((prev) => [
-            ...prev,
-            {
-                id: Date.now(),
-                sender: 'admin',
-                message: message.trim(),
-            },
-        ]);
+        setError('');
 
-        console.log('پاسخ:', message);
+        try {
+            const response = await fetch(`/api/admin/chat/${chatId}/reply`, {
+                method: 'POST',
 
-        setMessage('');
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+
+                body: JSON.stringify({
+                    message: message.trim(),
+                }),
+            });
+
+            const data = await response.json();
+
+            // کاربر احراز هویت نشده
+            if (response.status === 401) {
+                setError('دسترسی شما معتبر نیست.');
+                return;
+            }
+
+            // کاربر ادمین نیست
+            if (response.status === 403) {
+                setError('شما دسترسی ارسال پاسخ ندارید.');
+                return;
+            }
+
+            // سایر خطاهای API
+            if (!response.ok) {
+                setError(data.message || 'خطا در ارسال پاسخ');
+                return;
+            }
+
+            // موفقیت
+            setMessages((prev) => [...prev, data.data]);
+
+            setMessage('');
+        } catch (error) {
+            console.error('Send message error:', error);
+
+            setError('خطا در ارتباط با سرور.');
+        }
     };
 
     return (
-        <div className="mx-auto w-full max-w-3xl px-4 py-6" style={{ color: 'var(--foreground)' }}>
+        <div
+            className="mx-auto w-full max-w-3xl px-4"
+            style={{
+                color: 'var(--foreground)',
+            }}
+        >
             {/* Header */}
             <div className="mb-4">
                 <h1 className="text-xl font-semibold">چت پشتیبانی</h1>
@@ -79,38 +127,23 @@ function Chat() {
                 }}
             >
                 {/* Messages */}
-                <div className="flex min-h-[450px] flex-col gap-3 overflow-y-auto">
-                    {messages.map((item) => {
-                        const isAdmin = item.sender === 'admin';
+                <MessageList messages={messages} loading={loading} height="300px" />
 
-                        return (
-                            <div
-                                key={item.id}
-                                className="flex"
-                                style={{
-                                    justifyContent: isAdmin ? 'flex-start' : 'flex-end',
-                                }}
-                            >
-                                <div
-                                    className="max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-7"
-                                    style={{
-                                        background: isAdmin ? 'color-mix(in srgb, var(--them) 12%, var(--background))' : 'var(--button-background)',
+                {/* Error */}
+                {error && (
+                    <div
+                        className="mt-3 rounded-xl px-4 py-3 text-sm"
+                        style={{
+                            background: 'color-mix(in srgb, var(--them) 10%, transparent)',
 
-                                        border: '1px solid var(--button-border)',
+                            color: 'var(--them)',
 
-                                        color: 'var(--foreground)',
-
-                                        borderBottomLeftRadius: isAdmin ? '5px' : '16px',
-
-                                        borderBottomRightRadius: !isAdmin ? '5px' : '16px',
-                                    }}
-                                >
-                                    {item.message}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            border: '1px solid color-mix(in srgb, var(--them) 25%, transparent)',
+                        }}
+                    >
+                        {error}
+                    </div>
+                )}
 
                 {/* Input */}
                 <form onSubmit={handleSend} className="mt-4 flex gap-2">

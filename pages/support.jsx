@@ -1,23 +1,77 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
 import Link from 'next/link';
 
 import { FiSend, FiInstagram, FiPhone, FiMessageCircle, FiLogIn, FiLock, FiMail, FiArrowLeft } from 'react-icons/fi';
 
 import { useTranslation } from 'react-i18next';
+
 import { useAuth } from '@/context/AuthContext';
+
 import { sendBaleTicket } from '@/helper/sendBaleTicket';
+
+import MessageList from '@/components/MessageList';
 
 function Support() {
     const { t } = useTranslation();
+
     const auth = useAuth();
 
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null);
 
+    const [messages, setMessages] = useState([]);
+    const [messagesLoading, setMessagesLoading] = useState(true);
+
     const isAuthenticated = auth?.isAuthenticated || false;
+
+    /*
+     * دریافت پیام‌های قبلی کاربر
+     */
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setMessages([]);
+            setMessagesLoading(false);
+            return;
+        }
+
+        const userId = auth?.auth?.info?._id || auth?.auth?.info?.id;
+
+        if (!userId) {
+            setMessages([]);
+            setMessagesLoading(false);
+            return;
+        }
+
+        const chatId = `C-${String(userId).slice(-8).toUpperCase()}`;
+
+        const getMessages = async () => {
+            try {
+                setMessagesLoading(true);
+
+                const response = await fetch(`/api/admin/chat/${chatId}`);
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'خطا در دریافت پیام‌ها');
+                }
+
+                setMessages(data.messages || []);
+            } catch (error) {
+                console.error('خطا در دریافت پیام‌ها:', error);
+
+                setMessages([]);
+            } finally {
+                setMessagesLoading(false);
+            }
+        };
+
+        getMessages();
+    }, [isAuthenticated, auth?.auth?.info?._id, auth?.auth?.info?.id]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,40 +85,47 @@ function Support() {
 
         try {
             const name = auth?.auth?.info?.name || 'نامشخص';
+
             const phone = auth?.auth?.info?.phone || 'نامشخص';
-            // const userId = auth?.auth?.info?._id || auth?.auth?.info?.id;
-
-            // if (!userId) {
-            //     throw new Error('User ID is not available');
-            // }
-
-            // const ticketId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
             const userId = auth?.auth?.info?._id || auth?.auth?.info?.id;
 
             if (!userId) {
                 throw new Error('User ID is not available');
             }
+
             const chatId = `C-${String(userId).slice(-8).toUpperCase()}`;
 
-            const supportMessage =
-                `🎫 کد پیگیری: #${chatId}\n` +
-                `👤 نام: ${name}\n` +
-                `📱 شماره تلفن: ${phone}\n` +
-                `────────────────\n` +
-                `💬 پیام:\n${message.trim()}`;
+            const supportMessage = message.trim();
 
             await sendBaleTicket({
                 chatId,
                 userId,
                 message: supportMessage,
+                name,
+                phone,
             });
-            await sendBaleTicket(supportMessage);
+
+            /*
+             * نمایش فوری پیام ارسال‌شده
+             */
+            setMessages((prev) => [
+                ...prev,
+                {
+                    _id: `temp-${Date.now()}`,
+                    userId,
+                    chatId,
+                    message: supportMessage,
+                    type: 'user',
+                    createdAt: new Date().toISOString(),
+                },
+            ]);
 
             setMessage('');
             setStatus('success');
         } catch (error) {
             console.error('Failed to send support message:', error);
+
             setStatus('error');
         } finally {
             setLoading(false);
@@ -171,6 +232,7 @@ function Support() {
                                         }}
                                     >
                                         {t('support.loginRequired.loginButton')}
+
                                         <FiLogIn size={14} />
                                     </Link>
                                 </div>
@@ -267,6 +329,7 @@ function Support() {
                                     {status === 'success' && (
                                         <p className="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400">
                                             <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+
                                             {t('support.message.success')}
                                         </p>
                                     )}
@@ -274,6 +337,7 @@ function Support() {
                                     {status === 'error' && (
                                         <p className="flex items-center gap-1.5 text-xs font-medium text-red-500 dark:text-red-400">
                                             <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+
                                             {t('support.message.error')}
                                         </p>
                                     )}
@@ -336,6 +400,13 @@ function Support() {
                                     )}
                                 </button>
                             </div>
+
+                            {/* Message List */}
+                            {isAuthenticated && (
+                                <div className="mt-6 border-t border-gray-200/70 pt-6 dark:border-gray-800/70">
+                                    <MessageList messages={messages} loading={messagesLoading} height="300px" />
+                                </div>
+                            )}
                         </div>
                     </form>
                 </section>

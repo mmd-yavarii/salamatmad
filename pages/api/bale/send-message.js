@@ -12,7 +12,8 @@ export default async function handler(req, res) {
     try {
         await dbConnect();
 
-        const { message, userId, chatId: userChatId } = req.body;
+        const { message, userId, chatId: userChatId, name, phone } = req.body;
+
         const { ticket } = req.query;
 
         if (!message || typeof message !== 'string' || !userId) {
@@ -32,6 +33,38 @@ export default async function handler(req, res) {
             });
         }
 
+        let baleMessage = message.trim();
+
+        // اگر پیام مربوط به تیکت باشد
+        if (ticket === 'ok') {
+            if (!userChatId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'chatId is required when ticket=ok',
+                });
+            }
+
+            baleMessage =
+                `🎫 کد پیگیری: #${userChatId}\n` +
+                `👤 نام: ${name || 'نامشخص'}\n` +
+                `📱 شماره تلفن: ${phone || 'نامشخص'}\n` +
+                `────────────────\n` +
+                `💬 پیام:\n${message.trim()}\n` +
+                `\n🔗 لینک پاسخ:\n` +
+                `${process.env.BASE_URL}/admin/chat/${userChatId}`;
+
+            // فقط خود پیام در دیتابیس ذخیره می‌شود
+            await Message.create({
+                userId,
+                chatId: userChatId,
+                message: message.trim(),
+                type: 'user',
+            });
+
+            console.log('Message saved in database');
+        }
+
+        // ارسال به بله
         const response = await fetch(`https://tapi.bale.ai/bot${token}/sendMessage`, {
             method: 'POST',
             headers: {
@@ -39,7 +72,7 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 chat_id: baleChatId,
-                text: message,
+                text: baleMessage,
             }),
         });
 
@@ -53,24 +86,6 @@ export default async function handler(req, res) {
                 message: 'Failed to send message to Bale',
                 error: data,
             });
-        }
-
-        if (ticket === 'ok') {
-            if (!userChatId) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'chatId is required when ticket=ok',
-                });
-            }
-
-            await Message.create({
-                userId,
-                chatId: userChatId,
-                message,
-                type: 'user',
-            });
-
-            console.log('Message saved in database');
         }
 
         return res.status(200).json({

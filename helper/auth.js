@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 
 async function hashPassword(value) {
     const salt = await bcrypt.genSalt(10);
@@ -16,9 +16,11 @@ function normalizePhone(phone) {
     if (phone.startsWith('+98')) {
         return '0' + phone.slice(3);
     }
+
     if (phone.startsWith('98')) {
         return '0' + phone.slice(2);
     }
+
     return phone;
 }
 
@@ -30,4 +32,18 @@ function generateToken(payload) {
     return token;
 }
 
-export { hashPassword, comparePassword, generateToken, normalizePhone };
+function verifyToken(token) {
+    if (!token) {
+        return null;
+    }
+
+    try {
+        const decoded = verify(token, process.env.JWT_SECRET);
+
+        return decoded;
+    } catch (error) {
+        return null;
+    }
+}
+
+export { hashPassword, comparePassword, generateToken, verifyToken, normalizePhone };
